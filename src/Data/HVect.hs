@@ -9,7 +9,7 @@
 {-# LANGUAGE FlexibleInstances #-}
 
 module Data.HVect
-  ( HVect (..), (<:>)
+  ( HVect (..)
   , empty, null, head
   , singleton
   , HVectElim
@@ -26,14 +26,14 @@ import Prelude hiding (reverse, uncurry, curry, head, null)
 -- | Heterogeneous vector
 data HVect (ts :: [*]) where
   HNil :: HVect '[]
-  HCons :: t -> HVect ts -> HVect (t ': ts)
+  (:&:) :: t -> HVect ts -> HVect (t ': ts)
 
 instance Eq (HVect '[]) where
     _ == _ =
         True
 
 instance (Eq (HVect ts), Eq t) => Eq (HVect (t ': ts)) where
-    HCons a as == HCons b bs =
+    a :&: as == b :&: bs =
         a == b && as == bs
 
 instance Show (HVect '[]) where
@@ -41,7 +41,7 @@ instance Show (HVect '[]) where
         showParen (d > 10) $ showString "[]"
 
 instance (Show (HVect ts), Show t) => Show (HVect (t ': ts)) where
-    showsPrec d (HCons a as) =
+    showsPrec d (a :&: as) =
         showParen (d > 5) $
            showsPrec 6 a .
            showString " <:> " .
@@ -52,11 +52,11 @@ instance Ord (HVect '[]) where
     _ <= _ = True
 
 instance (Ord (HVect ts), Ord t) => Ord (HVect (t ': ts)) where
-    HCons a as `compare` HCons b bs =
+    (a :&: as) `compare` (b :&: bs) =
         case a `compare` b of
           EQ -> as `compare` bs
           o -> o
-    HCons a as <= HCons b bs =
+    a :&: as <= b :&: bs =
         a <= b && as <= bs
 
 -- todo: use a closed type family once GHC 7.6 compatibility is dropped
@@ -70,7 +70,7 @@ type instance Append '[] bs = bs
 type instance Append (a ': as) bs = a ': (Append as bs)
 
 singleton :: a -> HVect '[a]
-singleton el = HCons el HNil
+singleton el = el :&: HNil
 
 empty :: HVect '[]
 empty = HNil
@@ -80,17 +80,14 @@ null HNil = True
 null _ = False
 
 head :: HVect (t ': ts) -> t
-head (HCons a as) = a
+head (a :&: as) = a
 
-(<:>) :: a -> HVect as -> HVect (a ': as)
-(<:>) = HCons
-
-infixr 5 <:>
+infixr 5 :&:
 infixr 5 <++>
 
 (<++>) :: HVect as -> HVect bs -> HVect (Append as bs)
 (<++>) HNil bs = bs
-(<++>) (HCons a as) bs = HCons a (as <++> bs)
+(<++>) (a :&: as) bs = a :&: (as <++> bs)
 
 type family ReverseLoop (as :: [*]) (bs :: [*]) :: [*]
 type instance ReverseLoop '[] bs = bs
@@ -103,11 +100,11 @@ reverse vs = go vs HNil
   where
     go :: HVect as -> HVect bs -> HVect (ReverseLoop as bs)
     go HNil bs = bs
-    go (HCons a as) bs = go as (HCons a bs)
+    go (a :&: as) bs = go as (a :&: bs)
 
 uncurry :: HVectElim ts a -> HVect ts -> a
 uncurry f HNil = f
-uncurry f (HCons x xs) = uncurry (f x) xs
+uncurry f (x :&: xs) = uncurry (f x) xs
 
 data Rep (ts :: [*]) where
   RNil :: Rep '[]
@@ -124,14 +121,14 @@ instance HasRep ts => HasRep (t ': ts) where
 
 curryExpl :: Rep ts -> (HVect ts -> a) -> HVectElim ts a
 curryExpl RNil f = f HNil
-curryExpl (RCons r) f = \x -> curryExpl r (f . HCons x)
+curryExpl (RCons r) f = \x -> curryExpl r (f . (:&:) x)
 
 curry :: HasRep ts => (HVect ts -> a) -> HVectElim ts a
 curry = curryExpl hasRep
 
 buildElim :: Rep ts -> (HVect ts -> HVect ss) -> HVectElim ts (HVect ss)
 buildElim RNil f = f HNil
-buildElim (RCons r) f = \x -> buildElim r (f . HCons x)
+buildElim (RCons r) f = \x -> buildElim r (f . (:&:) x)
 
 packExpl :: Rep ts -> (forall a. HVectElim ts a -> a) -> HVect ts
 packExpl rep f = f (buildElim rep id)
