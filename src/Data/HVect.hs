@@ -6,6 +6,7 @@
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE KindSignatures #-}
+{-# LANGUAGE FlexibleInstances #-}
 
 module Data.HVect
   ( HVect (..), (<:>)
@@ -26,6 +27,37 @@ import Prelude hiding (reverse, uncurry, curry, head, null)
 data HVect (ts :: [*]) where
   HNil :: HVect '[]
   HCons :: t -> HVect ts -> HVect (t ': ts)
+
+instance Eq (HVect '[]) where
+    _ == _ =
+        True
+
+instance (Eq (HVect ts), Eq t) => Eq (HVect (t ': ts)) where
+    HCons a as == HCons b bs =
+        a == b && as == bs
+
+instance Show (HVect '[]) where
+    showsPrec d HNil =
+        showParen (d > 10) $ showString "[]"
+
+instance (Show (HVect ts), Show t) => Show (HVect (t ': ts)) where
+    showsPrec d (HCons a as) =
+        showParen (d > 5) $
+           showsPrec 6 a .
+           showString " <:> " .
+           showsPrec 6 as
+
+instance Ord (HVect '[]) where
+    _ `compare` _ = EQ
+    _ <= _ = True
+
+instance (Ord (HVect ts), Ord t) => Ord (HVect (t ': ts)) where
+    HCons a as `compare` HCons b bs =
+        case a `compare` b of
+          EQ -> as `compare` bs
+          o -> o
+    HCons a as <= HCons b bs =
+        a <= b && as <= bs
 
 -- todo: use a closed type family once GHC 7.6 compatibility is dropped
 type family HVectElim (ts :: [*]) (a :: *) :: *
