@@ -1,6 +1,6 @@
 {-# LANGUAGE PolyKinds #-}
 {-# LANGUAGE UndecidableInstances #-} -- for ReverseLoop type family
-{-# LANGUAGE Rank2Types #-}
+{-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE GADTs #-}
@@ -9,9 +9,12 @@
 {-# LANGUAGE FlexibleInstances #-}
 
 module Data.HVect
-  ( HVect (..)
+  ( -- * typesafe vector
+    HVect (..)
   , empty, null, head
   , singleton
+  , length, HVectLen (..)
+  , (!!), HVectIdx (..)
   , HVectElim
   , Append, (<++>)
   , ReverseLoop, Reverse, reverse
@@ -19,9 +22,13 @@ module Data.HVect
   , Rep (..), HasRep (..)
   , curryExpl, curry
   , packExpl, pack
+    -- * type level numeric utilities
+  , Nat (..), SNat (..), sNatToInt
+  , intToSNat, NatWrapper (..)
+  , (:<)
   ) where
 
-import Prelude hiding (reverse, uncurry, curry, head, null)
+import Prelude hiding (reverse, uncurry, curry, head, null, (!!), length)
 
 -- | Heterogeneous vector
 data HVect (ts :: [*]) where
@@ -82,8 +89,52 @@ null _ = False
 head :: HVect (t ': ts) -> t
 head (a :&: as) = a
 
+length :: HVect as -> SNat (HVectLen as)
+length HNil = SZero
+length (a :&: as) = SSucc (length as)
+
+sNatToInt :: SNat n -> Int
+sNatToInt SZero = 0
+sNatToInt (SSucc n) = 1 + (sNatToInt n)
+
+intToSNat :: Int -> NatWrapper SNat
+intToSNat 0 = NWrapped SZero
+intToSNat n =
+    case intToSNat (n - 1) of
+      NWrapped n -> NWrapped (SSucc n)
+
+data NatWrapper :: (k -> *) -> * where
+    NWrapped :: p x -> NatWrapper p
+
+data Nat where
+    Zero :: Nat
+    Succ :: Nat -> Nat
+
+data SNat (n :: Nat) where
+    SZero :: SNat Zero
+    SSucc :: SNat n -> SNat (Succ n)
+
+type family HVectLen (ts :: [*]) :: Nat
+type instance HVectLen '[] = Zero
+type instance HVectLen (t ': ts) = Succ (HVectLen ts)
+
+type family HVectIdx (n :: Nat) (ts :: [*]) :: *
+type instance HVectIdx Zero (a ': as) = a
+type instance HVectIdx (Succ n) (a ': as) = HVectIdx n as
+type instance HVectIdx a '[] = ()
+
+type family (m :: Nat) :< (n :: Nat) :: Bool
+type instance m :< Zero = False
+type instance Zero :< (Succ n) = True
+type instance (Succ m) :< (Succ n) = m :< n
+
+(!!) :: ((n :< HVectLen as) ~ True) => SNat n -> HVect as -> HVectIdx n as
+SZero !! (a :&: as) = a
+(SSucc s) !! (a :&: as) = s !! as
+
 infixr 5 :&:
 infixr 5 <++>
+infixl 9 !!
 
 (<++>) :: HVect as -> HVect bs -> HVect (Append as bs)
 (<++>) HNil bs = bs
