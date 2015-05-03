@@ -45,12 +45,25 @@ test_concat =
     do assertEqual (1 :&: 2 :&: "foo" :&: "bar" :&: empty) ((1 :&: 2 :&: empty) <++> ("foo" :&: "bar" :&: empty))
        assertEqual (1 :&: 2 :&: empty) ((1 :&: 2 :&: empty) <++> empty)
 
+
 test_curryUncurry :: IO ()
 test_curryUncurry =
     do assertEqual "12" (fun (1 :&: 2 :&: empty))
        assertEqual "12" (HV.curry fun 1 2)
        assertEqual "12" (HV.uncurry (HV.curry fun) (1 :&: 2 :&: empty))
     where
-      fun :: HVect '[Int, Int] -> String
+      fun :: HVect [Int, Int] -> String
       fun (a :&: b  :&: HNil) = show a ++ show b
       fun _ = "OOPS!"
+
+test_length :: IO ()
+test_length =
+    do assertEqual 0 (sNatToInt $ HV.length empty)
+       assertEqual 2 (sNatToInt $ HV.length ("foo" :&: "bar" :&: empty))
+       assertEqual 5 (sNatToInt $ HV.length ("aaa" :&: False :&: True :&: "foo" :&: "bar" :&: empty))
+
+test_idxAccess :: IO ()
+test_idxAccess =
+    do assertEqual "foo" (SZero HV.!! ("foo" :&: "bar" :&: empty))
+       assertEqual "bar" (SSucc SZero HV.!! ("foo" :&: "bar" :&: empty))
+       assertEqual "bar" (SSucc (SSucc SZero) HV.!! (True :&: "foo" :&: "bar" :&: empty))

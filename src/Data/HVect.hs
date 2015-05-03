@@ -24,7 +24,7 @@ module Data.HVect
   , packExpl, pack
     -- * type level numeric utilities
   , Nat (..), SNat (..), sNatToInt
-  , intToSNat, NatWrapper (..)
+  , intToSNat, AnySNat (..)
   , (:<)
   ) where
 
@@ -97,14 +97,11 @@ sNatToInt :: SNat n -> Int
 sNatToInt SZero = 0
 sNatToInt (SSucc n) = 1 + (sNatToInt n)
 
-intToSNat :: Int -> NatWrapper SNat
-intToSNat 0 = NWrapped SZero
+intToSNat :: Int -> AnySNat
+intToSNat 0 = AnySNat SZero
 intToSNat n =
     case intToSNat (n - 1) of
-      NWrapped n -> NWrapped (SSucc n)
-
-data NatWrapper :: (k -> *) -> * where
-    NWrapped :: p x -> NatWrapper p
+      AnySNat n -> AnySNat (SSucc n)
 
 data Nat where
     Zero :: Nat
@@ -113,6 +110,9 @@ data Nat where
 data SNat (n :: Nat) where
     SZero :: SNat Zero
     SSucc :: SNat n -> SNat (Succ n)
+
+data AnySNat where
+    AnySNat :: forall n. SNat n -> AnySNat
 
 type family HVectLen (ts :: [*]) :: Nat
 type instance HVectLen '[] = Zero
