@@ -35,6 +35,11 @@ test_head =
     do assertEqual 1 (HV.head $ 1 :&: empty)
        assertEqual 1 (HV.head $ 1 :&: 2 :&: empty)
 
+test_tail :: IO ()
+test_tail =
+    do assertEqual empty (HV.tail $ 1 :&: empty)
+       assertEqual (2 :&: empty) (HV.tail $ 1 :&: 2 :&: empty)
+
 test_null :: IO ()
 test_null =
     do assertBool (HV.null empty)

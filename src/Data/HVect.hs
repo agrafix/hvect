@@ -11,7 +11,7 @@
 module Data.HVect
   ( -- * typesafe vector
     HVect (..)
-  , empty, null, head
+  , empty, null, head, tail
   , singleton
   , length, HVectLen (..)
   , (!!), HVectIdx (..)
@@ -28,7 +28,7 @@ module Data.HVect
   , (:<)
   ) where
 
-import Prelude hiding (reverse, uncurry, curry, head, null, (!!), length)
+import Prelude hiding (reverse, uncurry, curry, head, null, (!!), length, tail)
 
 -- | Heterogeneous vector
 data HVect (ts :: [*]) where
@@ -89,6 +89,9 @@ null _ = False
 head :: HVect (t ': ts) -> t
 head (a :&: as) = a
 
+tail :: HVect (t ': ts) -> HVect ts
+tail (a :&: as) = as
+
 length :: HVect as -> SNat (HVectLen as)
 length HNil = SZero
 length (a :&: as) = SSucc (length as)
@@ -127,6 +130,10 @@ type family (m :: Nat) :< (n :: Nat) :: Bool
 type instance m :< Zero = False
 type instance Zero :< (Succ n) = True
 type instance (Succ m) :< (Succ n) = m :< n
+
+type family (m :: Nat) :- (n :: Nat) :: Nat
+type instance n :- Zero = n
+type instance (Succ m) :- (Succ n) = m :- n
 
 (!!) :: ((n :< HVectLen as) ~ True) => SNat n -> HVect as -> HVectIdx n as
 SZero !! (a :&: as) = a
