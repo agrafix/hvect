@@ -7,7 +7,7 @@ Haskell: hvect library
 
 Hackage: http://hackage.haskell.org/package/hvect
 
-Small, concise and simple implementation of heterogeneous lists in Haskell with useful utility functions
+Small, concise and simple implementation of strict heterogeneous lists in Haskell with useful utility functions
 
 # Install
 

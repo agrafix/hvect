@@ -9,7 +9,7 @@
 {-# LANGUAGE FlexibleInstances #-}
 
 module Data.HVect
-  ( -- * typesafe vector
+  ( -- * typesafe strict vector
     HVect (..)
   , empty, null, head, tail
   , singleton
