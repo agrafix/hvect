@@ -33,7 +33,7 @@ import Prelude hiding (reverse, uncurry, curry, head, null, (!!), length, tail)
 -- | Heterogeneous vector
 data HVect (ts :: [*]) where
   HNil :: HVect '[]
-  (:&:) :: t -> HVect ts -> HVect (t ': ts)
+  (:&:) :: !t -> !(HVect ts) -> HVect (t ': ts)
 
 instance Eq (HVect '[]) where
     _ == _ =
