@@ -7,6 +7,7 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE KindSignatures #-}
 {-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 
 module Data.HVect
   ( -- * typesafe strict vector
@@ -14,6 +15,7 @@ module Data.HVect
   , empty, null, head, tail
   , singleton
   , length, HVectLen (..)
+  , findFirst, InList (..)
   , (!!), HVectIdx (..)
   , HVectElim
   , Append, (<++>)
@@ -28,6 +30,7 @@ module Data.HVect
   , (:<)
   ) where
 
+import Data.Proxy
 import Prelude hiding (reverse, uncurry, curry, head, null, (!!), length, tail)
 
 -- | Heterogeneous vector
@@ -66,15 +69,33 @@ instance (Ord (HVect ts), Ord t) => Ord (HVect (t ': ts)) where
     a :&: as <= b :&: bs =
         a <= b && as <= bs
 
--- todo: use a closed type family once GHC 7.6 compatibility is dropped
-type family HVectElim (ts :: [*]) (a :: *) :: *
-type instance HVectElim '[] a = a
-type instance HVectElim (t ': ts) a = t -> HVectElim ts a
+type family HVectElim (ts :: [*]) (a :: *) :: * where
+    HVectElim '[] a = a
+    HVectElim (t ': ts) a = t -> HVectElim ts a
 
--- todo: use a closed type family once GHC 7.6 compatibility is dropped
-type family Append (as :: [*]) (bs :: [*]) :: [*]
-type instance Append '[] bs = bs
-type instance Append (a ': as) bs = a ': (Append as bs)
+type family Append (as :: [*]) (bs :: [*]) :: [*] where
+    Append '[] bs = bs
+    Append (a ': as) bs = a ': (Append as bs)
+
+type family InList (x :: *) (xs :: [*]) :: Nat where
+    InList x (x ': ys) = Zero
+    InList x (y ': ys) = Succ (InList x ys)
+
+class SNatRep n where
+    getSNat :: SNat n
+
+instance SNatRep Zero where
+    getSNat = SZero
+
+instance SNatRep n => SNatRep (Succ n) where
+    getSNat = SSucc getSNat
+
+-- | Find first element in 'HVect' of type x
+findFirst :: forall x ts n. (SNatRep n, InList x ts ~ n, HVectIdx n ts ~ x) => HVect ts -> x
+findFirst vect = idx !! vect
+    where
+      idx :: SNat n
+      idx = getSNat
 
 singleton :: a -> HVect '[a]
 singleton el = el :&: HNil
@@ -135,7 +156,7 @@ type family (m :: Nat) :- (n :: Nat) :: Nat
 type instance n :- Zero = n
 type instance (Succ m) :- (Succ n) = m :- n
 
-(!!) :: ((n :< HVectLen as) ~ True) => SNat n -> HVect as -> HVectIdx n as
+(!!) :: SNat n -> HVect as -> HVectIdx n as
 SZero !! (a :&: as) = a
 (SSucc s) !! (a :&: as) = s !! as
 

@@ -72,3 +72,11 @@ test_idxAccess =
     do assertEqual "foo" (SZero HV.!! ("foo" :&: "bar" :&: empty))
        assertEqual "bar" (SSucc SZero HV.!! ("foo" :&: "bar" :&: empty))
        assertEqual "bar" (SSucc (SSucc SZero) HV.!! (True :&: "foo" :&: "bar" :&: empty))
+
+test_getFirst :: IO ()
+test_getFirst =
+    do assertEqual True (findFirst (intOne :&: True :&: False :&: "foo" :&: empty))
+       assertEqual intOne (findFirst (intOne :&: True :&: False :&: "foo" :&: empty))
+    where
+      intOne :: Int
+      intOne = 1
