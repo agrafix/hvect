@@ -1,14 +1,13 @@
+{-# LANGUAGE DataKinds #-}
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE GADTs #-}
+{-# LANGUAGE KindSignatures #-}
 {-# LANGUAGE PolyKinds #-}
-{-# LANGUAGE UndecidableInstances #-} -- for ReverseLoop type family
 {-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeOperators #-}
-{-# LANGUAGE GADTs #-}
-{-# LANGUAGE DataKinds #-}
-{-# LANGUAGE KindSignatures #-}
-{-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE ScopedTypeVariables #-}
-
+{-# LANGUAGE UndecidableInstances #-} -- for ReverseLoop type family
 module Data.HVect
   ( -- * typesafe strict vector
     HVect (..)
@@ -138,23 +137,22 @@ data SNat (n :: Nat) where
 data AnySNat where
     AnySNat :: forall n. SNat n -> AnySNat
 
-type family HVectLen (ts :: [*]) :: Nat
-type instance HVectLen '[] = Zero
-type instance HVectLen (t ': ts) = Succ (HVectLen ts)
+type family HVectLen (ts :: [*]) :: Nat where
+    HVectLen '[] = Zero
+    HVectLen (t ': ts) = Succ (HVectLen ts)
 
-type family HVectIdx (n :: Nat) (ts :: [*]) :: *
-type instance HVectIdx Zero (a ': as) = a
-type instance HVectIdx (Succ n) (a ': as) = HVectIdx n as
-type instance HVectIdx a '[] = ()
+type family HVectIdx (n :: Nat) (ts :: [*]) :: * where
+    HVectIdx Zero (a ': as) = a
+    HVectIdx (Succ n) (a ': as) = HVectIdx n as
 
-type family (m :: Nat) :< (n :: Nat) :: Bool
-type instance m :< Zero = False
-type instance Zero :< (Succ n) = True
-type instance (Succ m) :< (Succ n) = m :< n
+type family (m :: Nat) :< (n :: Nat) :: Bool where
+    m :< Zero = False
+    Zero :< (Succ n) = True
+    (Succ m) :< (Succ n) = m :< n
 
-type family (m :: Nat) :- (n :: Nat) :: Nat
-type instance n :- Zero = n
-type instance (Succ m) :- (Succ n) = m :- n
+type family (m :: Nat) :- (n :: Nat) :: Nat where
+    n :- Zero = n
+    (Succ m) :- (Succ n) = m :- n
 
 (!!) :: SNat n -> HVect as -> HVectIdx n as
 SZero !! (a :&: as) = a
@@ -168,9 +166,9 @@ infixl 9 !!
 (<++>) HNil bs = bs
 (<++>) (a :&: as) bs = a :&: (as <++> bs)
 
-type family ReverseLoop (as :: [*]) (bs :: [*]) :: [*]
-type instance ReverseLoop '[] bs = bs
-type instance ReverseLoop (a ': as) bs = ReverseLoop as (a ': bs)
+type family ReverseLoop (as :: [*]) (bs :: [*]) :: [*] where
+    ReverseLoop '[] bs = bs
+    ReverseLoop (a ': as) bs = ReverseLoop as (a ': bs)
 
 type Reverse as = ReverseLoop as '[]
 

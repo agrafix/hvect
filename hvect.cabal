@@ -1,5 +1,5 @@
 name:                hvect
-version:             0.2.0.0
+version:             0.3.0.0
 synopsis:            Simple strict heterogeneous lists
 description:         Small, concise and simple implementation of heterogeneous lists with useful utility functions
 homepage:            https://github.com/agrafix/hvect
