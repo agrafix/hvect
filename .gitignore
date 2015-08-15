@@ -11,3 +11,4 @@ cabal.sandbox.config
 cabal.config
 .DS_Store
 .HTF
+.stack-work/
