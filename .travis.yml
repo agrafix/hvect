@@ -20,10 +20,8 @@ before_install:
   fi
 - $CABAL update
 - |
-  if [ $GHCVER = "head" ] || [ $GHCVER = "7.8.4" ] || [ $GHCVER = "7.10.2" ]; then
-    $CABAL install happy alex
-    export PATH=$HOME/.cabal/bin:$PATH
-  fi
+  $CABAL install happy alex
+  export PATH=$HOME/.cabal/bin:$PATH
 install:
 - $CABAL install --dependencies-only --enable-tests
 - $CABAL configure -flib-Werror --enable-tests $MODE
@@ -37,7 +35,7 @@ deploy:
   username: AlexanderThiemann
   skip_cleanup: true
   on:
-    condition: $GHCVER = 7.8.4
+    condition: "$GHCVER = 7.8.4"
     tags: true
   password:
     secure: M1Id7L3u6ElHJ2HStUYaEpUI/u0Z69LD5SaspnjXFcvMlLVhs7ZcMshslIGTJ/43kikcPYUorZmSOXS4rJR17nfZSRiZgpMjC1+zqeCzkXe/cPgM1GguWaMeDNVtWtKVvk6ph07rUmmmx1wR1DpHwM1E/c9AUfnDc2+VXB1nf64=

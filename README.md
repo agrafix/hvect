@@ -1,15 +1,33 @@
-Haskell: hvect library
+hvect
 =====
 
 [![Build Status](https://travis-ci.org/agrafix/hvect.svg)](https://travis-ci.org/agrafix/hvect)
+[![Hackage](https://img.shields.io/hackage/v/hvect.svg)](http://hackage.haskell.org/package/hvect)
 
-# Intro
+## Intro
 
-Hackage: http://hackage.haskell.org/package/hvect
+Hackage: [hvect](http://hackage.haskell.org/package/hvect)
+Stackage: [hvect](https://www.stackage.org/package/hvect)
 
-Small, concise and simple implementation of strict heterogeneous lists in Haskell with useful utility functions
+Simple strict heterogeneous lists
 
-# Install
+
+## Install
 
 * Using cabal: `cabal install hvect`
-* From Source: `git clone https://github.com/agrafix/hvect.git && cd hvect && cabal install`
+* Using Stack: `stack install hvect`
+* From Source (cabal): `git clone https://github.com/agrafix/hvect.git && cd hvect && cabal install`
+* From Source (stack): `git clone https://github.com/agrafix/hvect.git && cd hvect && stack build`
+
+
+## Misc
+
+### Supported GHC Versions
+
+* 7.8.4
+* 7.10.2
+
+### License
+
+Released under the MIT license.
+(c) 2014 - 2015 Alexander Thiemann <mail@athiemann.net>, Tim Baumann <tim@timbaumann.info>
