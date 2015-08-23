@@ -7,6 +7,8 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE ConstraintKinds #-}
 {-# LANGUAGE UndecidableInstances #-} -- for ReverseLoop type family
 module Data.HVect
   ( -- * typesafe strict vector
@@ -14,7 +16,7 @@ module Data.HVect
   , empty, null, head, tail
   , singleton
   , length, HVectLen (..)
-  , findFirst, InList (..)
+  , findFirst, InList (..), ListContains (..)
   , (!!), HVectIdx (..)
   , HVectElim
   , Append, (<++>)
@@ -89,8 +91,10 @@ instance SNatRep Zero where
 instance SNatRep n => SNatRep (Succ n) where
     getSNat = SSucc getSNat
 
+type ListContains n x ts = (SNatRep n, InList x ts ~ n, HVectIdx n ts ~ x)
+
 -- | Find first element in 'HVect' of type x
-findFirst :: forall x ts n. (SNatRep n, InList x ts ~ n, HVectIdx n ts ~ x) => HVect ts -> x
+findFirst :: forall x ts n. (ListContains n x ts) => HVect ts -> x
 findFirst vect = idx !! vect
     where
       idx :: SNat n
