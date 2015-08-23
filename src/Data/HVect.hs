@@ -16,7 +16,7 @@ module Data.HVect
   , empty, null, head, tail
   , singleton
   , length, HVectLen (..)
-  , findFirst, InList (..), ListContains (..)
+  , findFirst, InList (..), ListContains (..), NotInList(..)
   , (!!), HVectIdx (..)
   , HVectElim
   , Append, (<++>)
@@ -90,6 +90,11 @@ instance SNatRep Zero where
 
 instance SNatRep n => SNatRep (Succ n) where
     getSNat = SSucc getSNat
+
+type family NotInList (x :: *) (xs :: [*]) :: Bool where
+    NotInList x (x ': ys) = False
+    NotInList x (y ': ys) = NotInList x ys
+    NotInList x '[] = True
 
 type ListContains n x ts = (SNatRep n, InList x ts ~ n, HVectIdx n ts ~ x)
 
