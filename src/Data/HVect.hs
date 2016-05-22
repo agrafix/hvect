@@ -15,9 +15,10 @@ module Data.HVect
     HVect (..)
   , empty, null, head, tail
   , singleton
-  , length, HVectLen (..)
-  , findFirst, InList (..), ListContains (..), NotInList(..)
-  , (!!), HVectIdx (..)
+  , length, HVectLen
+  , findFirst, InList, ListContains, NotInList
+  , MaybeToList
+  , (!!), HVectIdx
   , HVectElim
   , Append, (<++>)
   , ReverseLoop, Reverse, reverse
@@ -31,7 +32,6 @@ module Data.HVect
   , (:<)
   ) where
 
-import Data.Proxy
 import Prelude hiding (reverse, uncurry, curry, head, null, (!!), length, tail)
 
 -- | Heterogeneous vector
@@ -98,6 +98,10 @@ type family NotInList (x :: *) (xs :: [*]) :: Bool where
 
 type ListContains n x ts = (SNatRep n, InList x ts ~ n, HVectIdx n ts ~ x)
 
+type family MaybeToList (a :: Maybe *) :: [*] where
+    MaybeToList ('Just r) = '[r]
+    MaybeToList 'Nothing = '[]
+
 -- | Find first element in 'HVect' of type x
 findFirst :: forall x ts n. (ListContains n x ts) => HVect ts -> x
 findFirst vect = idx !! vect
@@ -116,14 +120,14 @@ null HNil = True
 null _ = False
 
 head :: HVect (t ': ts) -> t
-head (a :&: as) = a
+head (a :&: _) = a
 
 tail :: HVect (t ': ts) -> HVect ts
-tail (a :&: as) = as
+tail (_ :&: as) = as
 
 length :: HVect as -> SNat (HVectLen as)
 length HNil = SZero
-length (a :&: as) = SSucc (length as)
+length (_ :&: as) = SSucc (length as)
 
 sNatToInt :: SNat n -> Int
 sNatToInt SZero = 0
@@ -133,7 +137,7 @@ intToSNat :: Int -> AnySNat
 intToSNat 0 = AnySNat SZero
 intToSNat n =
     case intToSNat (n - 1) of
-      AnySNat n -> AnySNat (SSucc n)
+      AnySNat m -> AnySNat (SSucc m)
 
 data Nat where
     Zero :: Nat
@@ -164,8 +168,9 @@ type family (m :: Nat) :- (n :: Nat) :: Nat where
     (Succ m) :- (Succ n) = m :- n
 
 (!!) :: SNat n -> HVect as -> HVectIdx n as
-SZero !! (a :&: as) = a
-(SSucc s) !! (a :&: as) = s !! as
+SZero !! (a :&: _) = a
+(SSucc s) !! (_ :&: as) = s !! as
+_ !! _ = error "HVect !!: This should never happen"
 
 infixr 5 :&:
 infixr 5 <++>

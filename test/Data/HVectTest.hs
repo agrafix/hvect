@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -F -pgmF htfpp #-}
+{-# OPTIONS_GHC -fno-warn-type-defaults -F -pgmF htfpp #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE DataKinds #-}
 module Data.HVectTest (htf_thisModulesTests) where
