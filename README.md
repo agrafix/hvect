@@ -30,4 +30,4 @@ Simple strict heterogeneous lists
 ### License
 
 Released under the MIT license.
-(c) 2014 - 2015 Alexander Thiemann <mail@athiemann.net>, Tim Baumann <tim@timbaumann.info>
+(c) 2014 - 2016 Alexander Thiemann <mail@athiemann.net>, Tim Baumann <tim@timbaumann.info>
