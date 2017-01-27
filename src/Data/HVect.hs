@@ -79,22 +79,22 @@ type family Append (as :: [*]) (bs :: [*]) :: [*] where
     Append (a ': as) bs = a ': (Append as bs)
 
 type family InList (x :: *) (xs :: [*]) :: Nat where
-    InList x (x ': ys) = Zero
-    InList x (y ': ys) = Succ (InList x ys)
+    InList x (x ': ys) = 'Zero
+    InList x (y ': ys) = 'Succ (InList x ys)
 
 class SNatRep n where
     getSNat :: SNat n
 
-instance SNatRep Zero where
+instance SNatRep 'Zero where
     getSNat = SZero
 
-instance SNatRep n => SNatRep (Succ n) where
+instance SNatRep n => SNatRep ('Succ n) where
     getSNat = SSucc getSNat
 
 type family NotInList (x :: *) (xs :: [*]) :: Bool where
-    NotInList x (x ': ys) = False
+    NotInList x (x ': ys) = 'False
     NotInList x (y ': ys) = NotInList x ys
-    NotInList x '[] = True
+    NotInList x '[] = 'True
 
 type ListContains n x ts = (SNatRep n, InList x ts ~ n, HVectIdx n ts ~ x)
 
@@ -144,28 +144,28 @@ data Nat where
     Succ :: Nat -> Nat
 
 data SNat (n :: Nat) where
-    SZero :: SNat Zero
-    SSucc :: SNat n -> SNat (Succ n)
+    SZero :: SNat 'Zero
+    SSucc :: SNat n -> SNat ('Succ n)
 
 data AnySNat where
     AnySNat :: forall n. SNat n -> AnySNat
 
 type family HVectLen (ts :: [*]) :: Nat where
-    HVectLen '[] = Zero
-    HVectLen (t ': ts) = Succ (HVectLen ts)
+    HVectLen '[] = 'Zero
+    HVectLen (t ': ts) = 'Succ (HVectLen ts)
 
 type family HVectIdx (n :: Nat) (ts :: [*]) :: * where
-    HVectIdx Zero (a ': as) = a
-    HVectIdx (Succ n) (a ': as) = HVectIdx n as
+    HVectIdx 'Zero (a ': as) = a
+    HVectIdx ('Succ n) (a ': as) = HVectIdx n as
 
 type family (m :: Nat) :< (n :: Nat) :: Bool where
-    m :< Zero = False
-    Zero :< (Succ n) = True
-    (Succ m) :< (Succ n) = m :< n
+    m :< 'Zero = 'False
+    'Zero :< ('Succ n) = 'True
+    ('Succ m) :< ('Succ n) = m :< n
 
 type family (m :: Nat) :- (n :: Nat) :: Nat where
-    n :- Zero = n
-    (Succ m) :- (Succ n) = m :- n
+    n :- 'Zero = n
+    ('Succ m) :- ('Succ n) = m :- n
 
 (!!) :: SNat n -> HVect as -> HVectIdx n as
 SZero !! (a :&: _) = a
