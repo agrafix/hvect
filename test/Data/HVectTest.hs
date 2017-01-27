@@ -3,8 +3,8 @@
 {-# LANGUAGE DataKinds #-}
 module Data.HVectTest (htf_thisModulesTests) where
 
-import Test.Framework
 import Data.HVect
+import Test.Framework
 import qualified Data.HVect as HV
 
 test_eqInstance :: IO ()
@@ -80,3 +80,11 @@ test_getFirst =
     where
       intOne :: Int
       intOne = 1
+
+test_allHave :: IO ()
+test_allHave =
+    assertEqual ["1", "2", "True"] (showLocal $ 1 :&: 2 :&: True :&: empty)
+    where
+        showLocal :: AllHave Show ts => HVect ts -> [String]
+        showLocal HNil = []
+        showLocal (t :&: ts) = (show t : showLocal ts)

@@ -3,6 +3,7 @@
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE KindSignatures #-}
 {-# LANGUAGE PolyKinds #-}
+{-# LANGUAGE ConstraintKinds #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeFamilies #-}
@@ -26,12 +27,15 @@ module Data.HVect
   , Rep (..), HasRep (..)
   , curryExpl, curry
   , packExpl, pack
+    -- * type class constraints on list elements
+  , AllHave (..)
     -- * type level numeric utilities
   , Nat (..), SNat (..), sNatToInt
   , intToSNat, AnySNat (..)
   , (:<)
   ) where
 
+import GHC.Exts
 import Prelude hiding (reverse, uncurry, curry, head, null, (!!), length, tail)
 
 -- | Heterogeneous vector
@@ -81,6 +85,10 @@ type family Append (as :: [*]) (bs :: [*]) :: [*] where
 type family InList (x :: *) (xs :: [*]) :: Nat where
     InList x (x ': ys) = 'Zero
     InList x (y ': ys) = 'Succ (InList x ys)
+
+type family AllHave (c :: * -> Constraint) (xs :: [*]) :: Constraint where
+    AllHave _ '[] = 'True ~ 'True
+    AllHave c (x ': xs) = (c x, AllHave c xs)
 
 class SNatRep n where
     getSNat :: SNat n
