@@ -26,6 +26,7 @@ test-suite hvect-test
   type:                exitcode-stdio-1.0
   hs-source-dirs:      test
   main-is:             Test.hs
+  default-language:    Haskell2010
   other-modules:       Data.HVectSpec
   build-depends:       base >= 4.8 && <5,
                        hvect,
