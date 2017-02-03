@@ -89,7 +89,7 @@ type family InList (x :: *) (xs :: [*]) :: Nat where
     InList x (y ': ys) = 'Succ (InList x ys)
 
 type family AllHave (c :: * -> Constraint) (xs :: [*]) :: Constraint where
-    AllHave _ '[] = 'True ~ 'True
+    AllHave c '[] = 'True ~ 'True
     AllHave c (x ': xs) = (c x, AllHave c xs)
 
 class SNatRep n where
