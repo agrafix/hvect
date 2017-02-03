@@ -28,7 +28,7 @@ module Data.HVect
   , curryExpl, curry
   , packExpl, pack
     -- * type class constraints on list elements
-  , AllHave (..)
+  , AllHave
     -- * type level numeric utilities
   , Nat (..), SNat (..), sNatToInt
   , intToSNat, AnySNat (..)
@@ -42,6 +42,8 @@ import Prelude hiding (reverse, uncurry, curry, head, null, (!!), length, tail)
 data HVect (ts :: [*]) where
   HNil :: HVect '[]
   (:&:) :: !t -> !(HVect ts) -> HVect (t ': ts)
+
+infixr 5 :&:
 
 instance Eq (HVect '[]) where
     _ == _ =
@@ -180,7 +182,6 @@ SZero !! (a :&: _) = a
 (SSucc s) !! (_ :&: as) = s !! as
 _ !! _ = error "HVect !!: This should never happen"
 
-infixr 5 :&:
 infixr 5 <++>
 infixl 9 !!
 

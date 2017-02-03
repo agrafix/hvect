@@ -26,10 +26,10 @@ test-suite hvect-test
   type:                exitcode-stdio-1.0
   hs-source-dirs:      test
   main-is:             Test.hs
-  other-modules:       Data.HVectTest
+  other-modules:       Data.HVectSpec
   build-depends:       base >= 4.7 && <5,
                        hvect,
-                       HTF >= 0.13.1.0
+                       hspec >= 2.2
   ghc-options: -Wall
 
 source-repository head
