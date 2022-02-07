@@ -19,15 +19,9 @@ Simple strict heterogeneous lists
 * From Source (cabal): `git clone https://github.com/agrafix/hvect.git && cd hvect && cabal install`
 * From Source (stack): `git clone https://github.com/agrafix/hvect.git && cd hvect && stack build`
 
-
-## Misc
-
-### Supported GHC Versions
-
-* 7.8.4
-* 7.10.2
-
-### License
+## License
 
 Released under the MIT license.
-(c) 2014 - 2016 Alexander Thiemann <mail@athiemann.net>, Tim Baumann <tim@timbaumann.info>
+(c) 2014 - 2022 Alexander Thiemann <mail@athiemann.net>, Tim Baumann <tim@timbaumann.info>
+
+By contributing to this repository you agree that your contributions will be released under the MIT license.
